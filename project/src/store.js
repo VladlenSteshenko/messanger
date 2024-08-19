@@ -4,7 +4,6 @@ import { persistStore, persistReducer, FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, 
 import storage from 'redux-persist/lib/storage';
 import authReducer from './reducers/authSlice';
 import chatReducer from './reducers/chatSlice';
-import messageReducer from './reducers/messageSlice';
 import userReducer from './reducers/userSlice';
 import { api } from './api/api';
 
