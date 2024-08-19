@@ -1,0 +1,78 @@
+/* src/components/Chat/ChatPage.css */
+.chat-page {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.chat-list {
+  border-right: 1px solid #ddd;
+  overflow-y: auto;
+}
+
+.chat-view {
+  border-right: 1px solid #ddd;
+  overflow-y: auto;
+}
+
+.chat-info {
+  overflow-y: auto;
+}
+
+.message-item {
+  display: flex;
+  padding: 10px;
+}
+
+.message-item img {
+  width: 30px;
+  height: 30px;
+  margin-right: 10px;
+}
+
+.message-item div {
+  flex: 1;
+}
+
+.message-input {
+  display: flex;
+  padding: 10px;
+  border-top: 1px solid #ddd;
+}
+
+.message-input input {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid #ddd;
+}
+
+.message-input button {
+  margin-left: 10px;
+  padding: 10px 20px;
+}
+
+.user-item {
+  display: flex;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.user-item img {
+  width: 30px;
+  height: 30px;
+  margin-right: 10px;
+}
+
+.toProfile-button {
+  padding: 10px;
+  border: none;
+  background-color: #007bff;
+  color: white;
+  cursor: pointer;
+  width: 100%;
+  text-align: center;
+}
+
+.toProfile-button:hover {
+  background-color: #0056b3;
+}
