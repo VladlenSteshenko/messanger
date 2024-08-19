@@ -120,15 +120,30 @@ const chatSlice = createSlice({
 
     updateMessage: (state, action) => {
       const { chatId, message } = action.payload;
-      console.log("chatId",chatId)
-      const messages = state.chatList[chatId].messages;
+    
+      // Проверяем, существуют ли chatId, message и message._id
+      if (!chatId || !message || !message._id) {
+        console.error('Invalid message update payload:', { chatId, message });
+        return;
+      }
+    
+      const messages = state.chatList[chatId]?.messages;
+    
+      // Проверяем, существуют ли сообщения в выбранном чате
+      if (!messages) {
+        console.error('No messages found for chatId:', chatId);
+        return;
+      }
+    
       const index = messages.findIndex((msg) => msg._id === message._id);
-      console.log("update target ",messages)
-      console.log("update data ",message)
+    
       if (index !== -1) {
         messages[index] = message;
+      } else {
+        console.error('Message not found in chat:', message._id);
       }
     },
+    
     removeMessage: (state, action) => {
       const { chatId, messageId } = action.payload;
       const chat = state.chatList[chatId];

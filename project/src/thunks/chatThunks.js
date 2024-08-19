@@ -32,10 +32,10 @@ export const connectSocket = createAsyncThunk(
 
     socket.on('msg', (data) => {
       console.log('Received message data:', data);
-
+    
       if (typeof data === 'object' && data !== null) {
-        const { _id: messageId, text, chat: { _id: chatId }, owner, media } = data;
-
+        const { _id: messageId, text, chat: { _id: chatId }, owner, media = [] } = data;
+    
         if (chatId && text && owner) {
           const message = {
             _id: messageId,
@@ -46,14 +46,14 @@ export const connectSocket = createAsyncThunk(
               avatar: owner.avatar?.url || '', 
             },
             createdAt: data.createdAt,
-            media: media?.map((mediaItem) => ({
+            media: media.map((mediaItem) => ({
               _id: mediaItem._id,
               url: mediaItem?.url || '',
-            })) || [],
+            })),
           };
-          
+    
           dispatch(addMessage({ chatId, message }));
-          
+    
         } else {
           console.error('Received message data does not contain expected properties:', data);
         }
@@ -61,6 +61,7 @@ export const connectSocket = createAsyncThunk(
         console.error('Received message data is not an object:', data);
       }
     });
+    
 
   }
 );
@@ -97,15 +98,29 @@ export const sendMessage = createAsyncThunk(
 
 export const updateChatMessage = createAsyncThunk(
   'chat/updateChatMessage',
-  async ({ chatId, messageId, newText }, { dispatch }) => {
+  async ({ chatId, messageId, newText, media }, { dispatch }) => {
     try {
-      const response = await dispatch(api.endpoints.MessageUpdate.initiate({ text: newText, messageid: messageId })).unwrap();
-      //dispatch(updateMessage({ chatId, message: response.MessageUpsert }));
+      const response = await dispatch(api.endpoints.MessageUpdate.initiate({
+        text: newText,
+        messageid: messageId,
+        media
+      })).unwrap();
+
+      // Dispatch updateMessage action with the updated message data
+      dispatch(updateMessage({
+        chatId,
+        message: {
+          _id: messageId,
+          text: response?.MessageUpsert?.text || newText,
+          media: response?.MessageUpsert?.media || media,
+        }
+      }));
     } catch (error) {
       console.error('Error updating message:', error);
     }
   }
 );
+
 
 export const deleteMessage = createAsyncThunk(
   'chat/deleteMessage',

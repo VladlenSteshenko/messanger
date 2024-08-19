@@ -88,9 +88,21 @@ const ChatView = () => {
 
   const handleEditSubmit = (e, chatId, messageId) => {
     e.preventDefault();
+  
+    if (!editText.trim()) {
+      console.error('Text cannot be empty.');
+      return;
+    }
+  
+    if (!chatId || !messageId) {
+      console.error('Invalid chatId or messageId:', { chatId, messageId });
+      return;
+    }
+  
     dispatch(updateChatMessage({ chatId, messageId, newText: editText }));
     setEditingMessageId(null);
   };
+  
 
   const handleDeleteMessage = (messageId) => {
     dispatch(deleteMessage({ chatId: selectedChatId, messageId }));
