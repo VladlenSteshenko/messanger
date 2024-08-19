@@ -19,7 +19,6 @@ const store = configureStore({
   reducer: {
     auth: persistedAuthReducer,
     chat: chatReducer,
-    message: messageReducer,
     user: userReducer,
     [api.reducerPath]: api.reducer
   },
