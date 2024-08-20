@@ -1,5 +1,4 @@
 // middleware/graphQLAuth.js
-//const authMiddleware = require('./auth');
 
 const graphQLAuthMiddleware = (req, res, next) => {
 

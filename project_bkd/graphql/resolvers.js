@@ -446,7 +446,8 @@ const root = {
         .populate("replies", "_id")
         .populate("replyTo", "_id")
         .exec();
-  
+      
+        console.log("messageDoc", messageDoc)
       // Emit the new or updated message
       global.io.emit("msg", messageDoc);
       return messageDoc;

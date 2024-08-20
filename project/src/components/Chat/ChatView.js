@@ -1,4 +1,3 @@
-// src/components/Chat/ChatView.js
 import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { sendMessage, updateChatMessage, fetchChatMessages, deleteMessage } from '../../thunks/chatThunks';
@@ -24,7 +23,6 @@ const ChatView = () => {
   useEffect(() => {
     if (selectedChatId) {
       dispatch(fetchChatMessages({ chatId: selectedChatId, offset: 0 }));
-      console.log(selectedChatMessages);
     }
   }, [selectedChatId, dispatch]);
 
@@ -37,19 +35,15 @@ const ChatView = () => {
   const handleSendMessage = async () => {
     if (messageText.trim() || selectedImage) {
       try {
-        // Send the message and retrieve the new message details
         const newMessageResponse = await dispatch(sendMessage({
           chatId: selectedChatId,
           text: messageText,
           media: [] // Initialize with empty media array
         })).unwrap();
   
-        console.log(newMessageResponse);
-  
         const newMessage = newMessageResponse.MessageUpsert;
         const messageId = newMessage?._id;
   
-        // If an image is selected, upload it and associate it with the message
         if (selectedImage && messageId) {
           const formData = new FormData();
           formData.append('file', selectedImage);
@@ -63,7 +57,6 @@ const ChatView = () => {
   
           if (response.ok) {
             const imageData = await response.json();
-            // Update the message with the image data
             dispatch(updateChatMessage({
               chatId: selectedChatId,
               messageId: messageId,
@@ -72,7 +65,6 @@ const ChatView = () => {
           }
         }
   
-        // Clear the input fields
         setMessageText('');
         setSelectedImage(null);
       } catch (error) {
@@ -144,9 +136,15 @@ const ChatView = () => {
                     ) : (
                       <>
                         <Typography>{message.text}</Typography>
-                        {message.image && (
-                          <img src={message.image} alt="message-img" style={{ maxWidth: '200px', marginTop: '10px' }} />
-                        )}
+                        {/* Render media images */}
+                        {message.media && message.media.map((mediaItem, index) => (
+                          <img 
+                            key={index}
+                            src={`http://localhost:5000${mediaItem.url}`} 
+                            alt={`media-${index}`} 
+                            style={{ maxWidth: '200px', marginTop: '10px' }} 
+                          />
+                        ))}
                         <Box display="flex" alignItems="center">
                           {message.owner._id === userId && (
                             <>

@@ -35,7 +35,7 @@ const chatSlice = createSlice({
         acc[chat._id] = chat;
         return acc;
       }, {});
-
+      console.log("chats", chatList)
       state.chatList = chatList;
     },
 
@@ -120,7 +120,7 @@ const chatSlice = createSlice({
 
     updateMessage: (state, action) => {
       const { chatId, message } = action.payload;
-    
+      console.log("message for update: ", message)
       // Check if chatId, message, and message._id exist
       if (!chatId || !message || !message._id) {
         console.error('Invalid message update payload:', { chatId, message });

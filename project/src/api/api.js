@@ -299,13 +299,17 @@ export const api = createApi({
       ],
     }),
     MessageUpdate: builder.mutation({
-      query: ({ messageid, text }) => ({
+      query: ({ messageid, text, media }) => ({
         document: `
-        mutation MessageUpdate($text: String, $messageid: ID) {
-          MessageUpsert(message: { text: $text, _id: $messageid }) {
+        mutation MessageUpdate($text: String, $messageid: ID, $media: [MediaInput]) {
+          MessageUpsert(message: { text: $text, _id: $messageid, media: $media }) {
             _id
             createdAt
             text
+            media {
+              _id
+              url
+            }
             owner {
               _id
               nick
@@ -319,12 +323,13 @@ export const api = createApi({
           }
         }
       `,
-        variables: { messageid, text },
+        variables: { messageid, text, media },
       }),
       invalidatesTags: (result, error, { messageid }) => [
         { type: "Message", id: messageid },
       ],
     }),
+    
     findUsersByNick: builder.query({
       query: (nick) => ({
         document: `

@@ -64,7 +64,7 @@ const upload = multer({
 });
 
 app.post('/upload', upload.single('file'), async (req, res) => {
-    console.log("upload receive")
+    console.log("upload received");
     try {
         const file = req.file;
         const { type, userId, messageId } = req.body;
@@ -94,9 +94,23 @@ app.post('/upload', upload.single('file'), async (req, res) => {
             if (!message) {
                 return res.status(404).json({ error: 'Message not found' });
             }
-            
+
             message.image = { _id: media._id, url: media.url };
             await message.save();
+        }
+
+        if (type === 'avatar') {
+            if (!userId) {
+                return res.status(400).json({ error: 'User ID is required for avatar upload' });
+            }
+
+            const user = await User.findById(userId);
+            if (!user) {
+                return res.status(404).json({ error: 'User not found' });
+            }
+
+            user.avatar = { _id: media._id, url: media.url };
+            await user.save();
         }
 
         res.status(201).send({ _id: media._id, url: media.url });
@@ -106,6 +120,7 @@ app.post('/upload', upload.single('file'), async (req, res) => {
         res.status(500).send({ message: 'Server error' });
     }
 });
+
 
   
 
