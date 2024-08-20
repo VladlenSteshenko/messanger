@@ -75,7 +75,7 @@ const root = {
         iat: Math.floor(Date.now() / 1000),
       };
 
-      const token = jwt.sign(payload, process.env.JWT_SECRET_KEY, {
+      const token = jwt.sign(payload, "abc", {
         expiresIn: "1h",
       });
 
@@ -317,7 +317,7 @@ const root = {
       // Verify the token and extract the payload
       const decodedToken = jwt.verify(
         token.replace("Bearer ", ""),
-        process.env.JWT_SECRET_KEY
+        "abc"
       );
 
       const userId = decodedToken.sub?.id;
@@ -384,7 +384,7 @@ const root = {
       const token = context.headers.authorization;
       const decodedToken = jwt.verify(
         token.replace("Bearer ", ""),
-        process.env.JWT_SECRET_KEY
+        "abc"
       );
       const userId = decodedToken.sub?.id;
   

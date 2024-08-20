@@ -29,7 +29,7 @@ const setupSocket = (server) => {
             let decoded;
 
             try {
-                decoded = jwt.verify(token.replace('Bearer ', ''), process.env.JWT_SECRET_KEY);
+                decoded = jwt.verify(token.replace('Bearer ', ''), "abc");
             } catch (e) {
                 socket.emit('jwt_fail', e);
                 return;
