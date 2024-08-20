@@ -2,12 +2,12 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
 import { graphqlRequestBaseQuery } from "@rtk-query/graphql-request-base-query";
 
-// Create a wrapper around graphqlRequestBaseQuery that logs the query
+
 const logQueryBaseQuery = (baseQuery) => async (args, api, extraOptions) => {
-  // Log the query
+  
   console.log("Query:", args.document);
 
-  // Send the query to the API
+ 
   return await baseQuery(args, api, extraOptions);
 };
 
@@ -25,7 +25,7 @@ export const api = createApi({
       },
     })
   ),
-  tagTypes: ["User", "Chat", "Message"], // Define tag types for caching
+  tagTypes: ["User", "Chat", "Message"], 
   endpoints: (builder) => ({
     login: builder.mutation({
       query: ({ login, password }) => ({
@@ -36,6 +36,12 @@ export const api = createApi({
         `,
         variables: { login, password },
       }),
+      invalidatesTags: (result) => [
+        { type: "User" },
+        { type: "Chat" },
+        { type: "Message" }
+      ],
+
     }),
     register: builder.mutation({
       query: ({ login, password }) => ({
@@ -371,8 +377,6 @@ export const api = createApi({
       ],
     }),
 
-
-    // Запрос для удаления сообщения
     MessageDelete: builder.mutation({
       query: ({ messageId }) => ({
         document: `

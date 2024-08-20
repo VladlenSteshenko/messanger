@@ -12,7 +12,6 @@ const userSchema = new mongoose.Schema({
     chats: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Chat' }],
 });
 
-// Pre-save middleware to hash the password
 userSchema.pre('save', async function(next) {
     if (this.isModified('password') || this.isNew) {
         try {

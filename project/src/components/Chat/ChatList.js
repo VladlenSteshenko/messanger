@@ -32,6 +32,7 @@ const ChatList = () => {
     try {
       const newChat = await createChat({ title: newChatTitle }).unwrap();
       dispatch(addChat(newChat));
+     // dispatch(setSelectedChatId(newChat._id));
       setNewChatTitle("");
     } catch (err) {
       console.error("Failed to create chat:", err);

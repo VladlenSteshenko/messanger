@@ -35,7 +35,7 @@ const ChatView = () => {
         const newMessageResponse = await dispatch(sendMessage({
           chatId: selectedChatId,
           text: messageText,
-          media: [] // Initialize with empty media array
+          media: [] 
         })).unwrap();
 
         const newMessage = newMessageResponse.MessageUpsert;

@@ -15,7 +15,6 @@ export const loginThunk = createAsyncThunk(
       const payload = jwtDecode(token);
       const decodedToken = jwtDecode(response.data.login);
       dispatch(setAuth({ token, user: decodedToken }));
-      // Fetch user profile and chat data after successful login
       dispatch(fetchAboutMeThunk());
       
     }

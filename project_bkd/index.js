@@ -25,20 +25,16 @@ const app = express();
 app.use(express.json());
 const server = http.createServer(app);
 
-// Configure CORS
 app.use(cors({
-    origin: 'http://localhost:3000',  // Allow requests from this origin
+    origin: 'http://localhost:3000', 
     credentials: true,
 }));
 
-// Ensure the uploads directory exists
 const uploadDir = path.join(__dirname, 'public/uploads/');
 if (!fs.existsSync(uploadDir)) {
     fs.mkdirSync(uploadDir, { recursive: true });
 }
-// Serve static files
 app.use(express.static(path.join(__dirname, 'public')));
-// Define storage options for Multer
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         cb(null, uploadDir);
@@ -50,7 +46,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({
     storage: storage,
-    limits: { fileSize: 10 * 1024 * 1024 }, // 10 MB limit
+    limits: { fileSize: 10 * 1024 * 1024 }, 
     fileFilter: (req, file, cb) => {
         const filetypes = /jpeg|jpg|png|gif/;
         const mimetype = filetypes.test(file.mimetype);
@@ -121,30 +117,21 @@ app.post('/upload', upload.single('file'), async (req, res) => {
     }
 });
 
-
-  
-
-
-// Connect to MongoDB
 connectDB(process.env.MONGO_URI);
 
-// Middleware
 app.use(graphQLAuthMiddleware);
 
-// GraphQL endpoint
 app.use('/graphql', graphqlHTTP((req) => ({
     schema: schema,
     rootValue: root,
     graphiql: true,
     context: {
-        headers: req.headers, // Pass request headers to the context
+        headers: req.headers, 
     },
 })));
 
-// Set up Socket.io
 setupSocket(server);
 
-// Start the server
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);

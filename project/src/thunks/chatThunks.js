@@ -12,7 +12,7 @@ import {
 import io from 'socket.io-client';
 import { api } from '../api/api';
 
-const socket = io('http://localhost:5000'); // Подключение к Socket.IO
+const socket = io('http://localhost:5000'); 
 
 export const connectSocket = createAsyncThunk(
   'auth/connectSocket',
@@ -104,7 +104,6 @@ export const updateChatMessage = createAsyncThunk(
         media
       })).unwrap();
 
-      // Обновление сообщения с новыми данными, включая owner
       dispatch(updateMessage({
         chatId,
         message: {
