@@ -12,7 +12,7 @@ import {
 import io from 'socket.io-client';
 import { api } from '../api/api';
 
-const socket = io('http://localhost:5000'); //Socket
+const socket = io('http://localhost:5000'); // Подключение к Socket.IO
 
 export const connectSocket = createAsyncThunk(
   'auth/connectSocket',
@@ -32,10 +32,10 @@ export const connectSocket = createAsyncThunk(
 
     socket.on('msg', (data) => {
       console.log('Received message data:', data);
-    
+
       if (typeof data === 'object' && data !== null) {
         const { _id: messageId, text, chat: { _id: chatId }, owner, media = [] } = data;
-    
+
         if (chatId && text && owner) {
           const message = {
             _id: messageId,
@@ -51,9 +51,9 @@ export const connectSocket = createAsyncThunk(
               url: mediaItem?.url || '',
             })),
           };
-    
+
           dispatch(addMessage({ chatId, message }));
-    
+
         } else {
           console.error('Received message data does not contain expected properties:', data);
         }
@@ -61,8 +61,6 @@ export const connectSocket = createAsyncThunk(
         console.error('Received message data is not an object:', data);
       }
     });
-    
-
   }
 );
 
@@ -70,9 +68,9 @@ export const fetchChatMessages = createAsyncThunk(
   'chat/fetchChatMessages',
   async ({ chatId, offset }, { dispatch }) => {
     try {
-      const response = await dispatch(api.endpoints.getMessages.initiate({ chatID:chatId, offset })).unwrap();
+      const response = await dispatch(api.endpoints.getMessages.initiate({ chatID: chatId, offset })).unwrap();
       dispatch(setChatMessages({ chatId, messages: response.MessageFind }));
-      console.log(response.MessageFind)
+      console.log(response.MessageFind);
     } catch (error) {
       console.error('Error fetching chat messages:', error);
       throw error;
@@ -98,21 +96,26 @@ export const sendMessage = createAsyncThunk(
 
 export const updateChatMessage = createAsyncThunk(
   'chat/updateChatMessage',
-  async ({ chatId, messageId, newText, media }, { dispatch }) => {
+  async ({ chatId, messageId, newText, media, owner }, { dispatch }) => {
     try {
       const response = await dispatch(api.endpoints.MessageUpdate.initiate({
         text: newText,
         messageid: messageId,
         media
       })).unwrap();
-      
-      // Dispatch updateMessage action with the updated message data
+
+      // Обновление сообщения с новыми данными, включая owner
       dispatch(updateMessage({
         chatId,
         message: {
           _id: messageId,
           text: response?.MessageUpsert?.text || newText,
           media: response?.MessageUpsert?.media || media,
+          owner: {
+            _id: owner._id,
+            nick: owner.nick,
+            avatar: owner.avatar?.url || '',
+          },
         }
       }));
     } catch (error) {
@@ -121,12 +124,9 @@ export const updateChatMessage = createAsyncThunk(
   }
 );
 
-
 export const deleteMessage = createAsyncThunk(
   'chat/deleteMessage',
   async ({ chatId, messageId }, { dispatch }) => {
-    console.log(123123,messageId)
-    console.log(123123,chatId)
     try {
       await dispatch(api.endpoints.MessageDelete.initiate({ messageId })).unwrap();
       dispatch(removeMessage({ chatId, messageId }));
@@ -135,4 +135,3 @@ export const deleteMessage = createAsyncThunk(
     }
   }
 );
-
