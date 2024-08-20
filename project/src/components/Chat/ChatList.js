@@ -3,48 +3,16 @@ import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { useUserChatsQuery, useChatUpsertMutation } from "../../api/api";
-import {
-  setChatList,
-  setSelectedChatId,
-  addChat,
-} from "../../reducers/chatSlice";
+import { setChatList, setSelectedChatId, addChat } from "../../reducers/chatSlice";
 import { fetchChatMessages } from "../../thunks/chatThunks";
-import {
-  Avatar,
-  Box,
-  Button,
-  Container,
-  List,
-  ListItem,
-  ListItemAvatar,
-  ListItemText,
-  TextField,
-  Typography,
-} from "@mui/material";
+import { Avatar, Box, Button, Container, List, ListItem, ListItemAvatar, ListItemText, TextField, Typography } from "@mui/material";
 import "./ChatPage.css";
-
-const mockChats = [
-  {
-    _id: 1,
-    title: "Chat 1",
-    lastMessage: { text: "Hello" },
-    lastModified: "1620196188000",
-    avatar: { url: "https://via.placeholder.com/50" },
-  },
-  {
-    _id: 2,
-    title: "Chat 2",
-    lastMessage: { text: "Hi" },
-    lastModified: "1620196188000",
-    avatar: { url: "https://via.placeholder.com/50" },
-  },
-];
 
 const ChatList = () => {
   const user = useSelector((state) => state.auth.payload);
   const userId = user?.sub?.id;
   const chatList = useSelector((state) => state.chat.chatList) || {};
-  const chats = Object.values(chatList) || mockChats;
+  const chats = Object.values(chatList);
   const [createChat] = useChatUpsertMutation();
   const [newChatTitle, setNewChatTitle] = useState("");
   const dispatch = useDispatch();
@@ -83,7 +51,7 @@ const ChatList = () => {
   if (error) return <Typography>Error loading chats</Typography>;
 
   return (
-    <Container>
+    <Container className="chat-list-container">
       <Box display="flex" flexDirection="column" mb={2}>
         <TextField
           value={newChatTitle}
@@ -101,17 +69,11 @@ const ChatList = () => {
       </Box>
       <List>
         {chats.map((chat) => (
-          <ListItem key={chat._id} button onClick={() => handleChatClick(chat)}>
+          <ListItem key={chat._id} button onClick={() => handleChatClick(chat)} className="chat-list-item">
             <ListItemAvatar>
-              <Avatar
-                src={chat.avatar?.url || "default-avatar.png"}
-                alt="avatar"
-              />
+              <Avatar src={chat.avatar?.url || "default-avatar.png"} alt="avatar" />
             </ListItemAvatar>
-            <ListItemText
-              primary={chat.title || "Untitled Chat"}
-              secondary={chat.lastMessage?.text}
-            />
+            <ListItemText primary={chat.title || "Untitled Chat"} secondary={chat.lastMessage?.text} />
             <Typography variant="body2" color="textSecondary">
               {chat.lastModified
                 ? new Date(parseInt(chat.lastModified)).toLocaleString()
@@ -123,4 +85,6 @@ const ChatList = () => {
     </Container>
   );
 };
+
 export default ChatList;
+

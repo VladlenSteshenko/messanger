@@ -10,14 +10,13 @@ import './ChatPage.css';
 
 const ChatView = () => {
   const dispatch = useDispatch();
-  let selectedChatId = useSelector((state) => state.chat.selectedChatId);
-  let selectedChat = useSelector((state) => state.chat.chatList[selectedChatId]);
+  const selectedChatId = useSelector((state) => state.chat.selectedChatId);
+  const selectedChat = useSelector((state) => state.chat.chatList[selectedChatId]);
   const [messageText, setMessageText] = useState('');
   const [selectedImage, setSelectedImage] = useState(null);
   const user = useSelector((state) => state.auth.payload);
   const userId = user?.sub?.id;
   const [editingMessageId, setEditingMessageId] = useState(null);
-  const chatList = useSelector((state) => state.chat.chatList) || {};
   const [editText, setEditText] = useState('');
 
   useEffect(() => {
@@ -27,10 +26,8 @@ const ChatView = () => {
   }, [selectedChatId, dispatch]);
 
   if (!selectedChat) {
-    return <Typography>Select a chat to view messages</Typography>;
+    return <Typography variant="h6" color="textSecondary">Select a chat to view messages</Typography>;
   }
-
-  let selectedChatMessages = selectedChat.messages || [];
 
   const handleSendMessage = async () => {
     if (messageText.trim() || selectedImage) {
@@ -40,21 +37,21 @@ const ChatView = () => {
           text: messageText,
           media: [] // Initialize with empty media array
         })).unwrap();
-  
+
         const newMessage = newMessageResponse.MessageUpsert;
         const messageId = newMessage?._id;
-  
+
         if (selectedImage && messageId) {
           const formData = new FormData();
           formData.append('file', selectedImage);
           formData.append('type', 'message');
           formData.append('messageId', messageId);
-  
+
           const response = await fetch('http://localhost:5000/upload', {
             method: 'POST',
             body: formData,
           });
-  
+
           if (response.ok) {
             const imageData = await response.json();
             dispatch(updateChatMessage({
@@ -64,7 +61,7 @@ const ChatView = () => {
             }));
           }
         }
-  
+
         setMessageText('');
         setSelectedImage(null);
       } catch (error) {
@@ -80,21 +77,11 @@ const ChatView = () => {
 
   const handleEditSubmit = (e, chatId, messageId) => {
     e.preventDefault();
-  
-    if (!editText.trim()) {
-      console.error('Text cannot be empty.');
-      return;
+    if (editText.trim()) {
+      dispatch(updateChatMessage({ chatId, messageId, newText: editText }));
+      setEditingMessageId(null);
     }
-  
-    if (!chatId || !messageId) {
-      console.error('Invalid chatId or messageId:', { chatId, messageId });
-      return;
-    }
-  
-    dispatch(updateChatMessage({ chatId, messageId, newText: editText }));
-    setEditingMessageId(null);
   };
-  
 
   const handleDeleteMessage = (messageId) => {
     dispatch(deleteMessage({ chatId: selectedChatId, messageId }));
@@ -107,15 +94,15 @@ const ChatView = () => {
   };
 
   return (
-    <Container>
-      <Typography variant="h5" gutterBottom>{selectedChat.title || 'Untitled Chat'}</Typography>
-      <List>
-        {selectedChatMessages.length > 0 ? (
-          selectedChatMessages.map((message) => (
-            <ListItem key={message._id} alignItems="flex-start">
+    <Container className="chat-view-container">
+      <Typography variant="h5" className="chat-title" gutterBottom>{selectedChat.title || 'Untitled Chat'}</Typography>
+      <List className="chat-messages-list">
+        {selectedChat.messages && selectedChat.messages.length > 0 ? (
+          selectedChat.messages.map((message) => (
+            <ListItem key={message._id} alignItems="flex-start" className="chat-message-item">
               <ListItemAvatar>
                 <Avatar
-                  alt="avatar"
+                  alt={message.owner?.nick}
                   src={`http://localhost:5000${message.owner?.avatar?.url}` || 'default-avatar.png'}
                 />
               </ListItemAvatar>
@@ -129,29 +116,34 @@ const ChatView = () => {
                           value={editText}
                           onChange={(e) => setEditText(e.target.value)}
                           fullWidth
+                          autoFocus
+                          variant="outlined"
+                          margin="normal"
                         />
-                        <Button type="submit">Save</Button>
-                        <Button onClick={() => setEditingMessageId(null)}>Cancel</Button>
+                        <Box display="flex" gap={1}>
+                          <Button type="submit" variant="contained" color="primary">Save</Button>
+                          <Button variant="outlined" onClick={() => setEditingMessageId(null)}>Cancel</Button>
+                        </Box>
                       </form>
                     ) : (
                       <>
-                        <Typography>{message.text}</Typography>
+                        <Typography variant="body1" className="message-text">{message.text}</Typography>
                         {/* Render media images */}
                         {message.media && message.media.map((mediaItem, index) => (
                           <img 
                             key={index}
                             src={`http://localhost:5000${mediaItem.url}`} 
                             alt={`media-${index}`} 
-                            style={{ maxWidth: '200px', marginTop: '10px' }} 
+                            className="message-media-image"
                           />
                         ))}
-                        <Box display="flex" alignItems="center">
+                        <Box display="flex" alignItems="center" mt={1}>
                           {message.owner._id === userId && (
                             <>
-                              <IconButton onClick={() => handleEditMessage(message)}>
+                              <IconButton onClick={() => handleEditMessage(message)} color="primary">
                                 <EditIcon />
                               </IconButton>
-                              <IconButton onClick={() => handleDeleteMessage(message._id)}>
+                              <IconButton onClick={() => handleDeleteMessage(message._id)} color="secondary">
                                 <DeleteIcon />
                               </IconButton>
                             </>
@@ -159,22 +151,26 @@ const ChatView = () => {
                         </Box>
                       </>
                     )}
-                    <Typography variant="body2" color="textSecondary">{new Date(parseInt(message.createdAt)).toLocaleString()}</Typography>
+                    <Typography variant="caption" color="textSecondary" className="message-timestamp">
+                      {new Date(parseInt(message.createdAt)).toLocaleString()}
+                    </Typography>
                   </>
                 }
               />
             </ListItem>
           ))
         ) : (
-          <Typography>No messages yet</Typography>
+          <Typography variant="body2" color="textSecondary">No messages yet</Typography>
         )}
       </List>
-      <Box display="flex" mt={2} alignItems="center">
+      <Box display="flex" mt={2} alignItems="center" className="message-input-container">
         <TextField
           value={messageText}
           onChange={(e) => setMessageText(e.target.value)}
           placeholder="Type your message"
           fullWidth
+          variant="outlined"
+          className="message-input"
         />
         <input
           accept="image/*"
@@ -200,3 +196,4 @@ const ChatView = () => {
 };
 
 export default ChatView;
+
